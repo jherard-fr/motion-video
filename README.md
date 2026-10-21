@@ -7,15 +7,11 @@ Il suffit de dire à Claude « motion vidéo » ou « je veux faire une vidéo s
 ## Ce qu'il faut avoir
 
 - **Un abonnement Claude** (Pro, Max, Team ou Enterprise) et **Claude Code** : l'application de bureau Claude (onglet Code) ou Claude Code dans un terminal.
-- **Un compte GitHub** avec l'invitation au dépôt acceptée (le dépôt est privé). Aucun connecteur GitHub n'est nécessaire dans Claude : l'installation passe par Git, qui vous demandera de vous connecter à GitHub dans le navigateur la première fois.
+- Aucun compte GitHub ni connecteur GitHub dans Claude : le dépôt est public, l'installation passe simplement par Git.
 - **Une clé OpenRouter** (images, plans vidéo, musique) et **une clé ElevenLabs** (voix off). Voir plus bas.
 - Un ordinateur Windows ou Mac avec environ 2 Go d'espace libre.
 
-## 1. Accepter l'invitation GitHub
-
-Vous avez reçu un e-mail de GitHub « invited you to collaborate on jherard-fr/motion-video ». Cliquez sur **View invitation**, puis **Accept invitation**. Sans compte GitHub, créez-en un gratuitement sur github.com avec l'adresse qui a reçu l'invitation.
-
-## 2. Installer les logiciels nécessaires
+## 1. Installer les logiciels nécessaires
 
 ### Windows
 
@@ -56,7 +52,7 @@ npx --yes hyperframes skills
 curl -fsSL https://claude.ai/install.sh | bash
 ```
 
-## 3. Installer la skill
+## 2. Installer la skill
 
 Dans PowerShell (Windows) ou le Terminal (Mac) :
 
@@ -65,15 +61,13 @@ claude plugin marketplace add jherard-fr/motion-video
 claude plugin install motion-video@motion-video
 ```
 
-La première fois, une fenêtre de connexion GitHub peut s'ouvrir : connectez-vous avec le compte qui a accepté l'invitation.
-
 Redémarrez ensuite l'application Claude (ou relancez `claude`).
 
 **Plus simple :** vous pouvez aussi ouvrir l'application Claude, onglet Code, et coller ce message :
 
-> Installe pour moi le plugin Claude Code du dépôt privé GitHub jherard-fr/motion-video : vérifie que Git, Node.js, Python avec le module requests, ffmpeg et Google Chrome sont installés (installe ce qui manque), lance `npx --yes hyperframes skills`, puis `claude plugin marketplace add jherard-fr/motion-video` et `claude plugin install motion-video@motion-video`. Explique-moi chaque étape où je dois agir.
+> Installe pour moi le plugin Claude Code du dépôt GitHub jherard-fr/motion-video : vérifie que Git, Node.js, Python avec le module requests, ffmpeg et Google Chrome sont installés (installe ce qui manque), lance `npx --yes hyperframes skills`, puis `claude plugin marketplace add jherard-fr/motion-video` et `claude plugin install motion-video@motion-video`. Explique-moi chaque étape où je dois agir.
 
-## 4. Déposer vos clés
+## 3. Déposer vos clés
 
 Créez un dossier `.motion-video` dans votre dossier personnel :
 - Windows : `C:\Users\<votre nom>\.motion-video\`
@@ -90,7 +84,7 @@ Ne partagez jamais ces fichiers et ne les mettez pas dans un dossier synchronis�
 
 Ordre de grandeur des coûts pour un film d'une minute : 0,05 $ par image générée, 0,40 à 0,60 $ par plan vidéo de 5 secondes, 0,08 $ pour la musique. La voix off utilise le quota de caractères de votre abonnement ElevenLabs. La skill annonce toujours le coût avant de générer, et vous prévient quand une clé approche de sa limite.
 
-## 5. Vérifier l'installation
+## 4. Vérifier l'installation
 
 Dans Claude (onglet Code), demandez : « vérifie l'installation de motion vidéo ». Claude lance un contrôle qui affiche une ligne par élément :
 
@@ -107,7 +101,7 @@ Tout est prêt.
 
 Chaque ligne « MANQUE » indique quoi installer.
 
-## 6. Utiliser la skill
+## 5. Utiliser la skill
 
 Dites par exemple à Claude : « motion vidéo : un film de 30 secondes pour présenter notre atelier de céramique ». Claude crée le projet dans `Documents/Videos/` et vous donne le lien de la page de travail. Ensuite, à chaque étape :
 
@@ -132,4 +126,8 @@ Puis redémarrez Claude.
 - **« Clé introuvable »** : vérifiez le nom des fichiers (`openrouter.txt`, `elevenlabs.txt`) et le dossier `.motion-video`.
 - **« missing the permission text_to_speech »** : activez la permission Text to Speech sur la clé ElevenLabs.
 - **« LIMITE ATTEINTE »** : le crédit OpenRouter ou le quota ElevenLabs est épuisé ; la date de remise à zéro est indiquée.
-- **Échec de `claude plugin marketplace add`** : vérifiez que l'invitation GitHub est acceptée et que Git est installé, puis relancez la commande.
+- **Échec de `claude plugin marketplace add`** : vérifiez que Git est installé (`git --version`), fermez et rouvrez le terminal, puis relancez la commande.
+
+## Contribuer
+
+Le dépôt est en lecture seule pour tous sauf son auteur. Pour proposer une amélioration ou signaler un problème, ouvrez une issue sur GitHub ou écrivez directement à Jérôme.
