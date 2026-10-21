@@ -1,0 +1,717 @@
+<title>__TITRE__</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Archivo+Black&family=DM+Serif+Display&display=swap">
+<style>
+/* Layout : une table de montage. Bandeau d'étapes en haut, chaque étape est une page de travail à une colonne, les éléments ont leur fil de commentaires. */
+:root {
+  --bg: #eef0f2; --panel: #ffffff; --ink: #15191f; --muted: #5d6673; --line: #d5dae0;
+  --accent: #d9480f; --accent-ink: #ffffff; --accent-soft: #fde8dc;
+  --ok: #2b8a3e; --ok-soft: #e3f4e6; --warn: #b7791f; --warn-soft: #fdf3dc; --bad: #c92a2a; --bad-soft: #fde4e4;
+  --chip: #e4e8ec; --stage: #0f1216;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", Consolas, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121519; --panel: #1b1f25; --ink: #e8ebef; --muted: #98a2ae; --line: #2d333b;
+  --accent: #ff7a3d; --accent-ink: #15191f; --accent-soft: #3a2418;
+  --ok: #51cf66; --ok-soft: #1c2e21; --warn: #f2b84b; --warn-soft: #33291a; --bad: #ff6b6b; --bad-soft: #3a1f21;
+  --chip: #262b33; --stage: #07090b; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #121519; --panel: #1b1f25; --ink: #e8ebef; --muted: #98a2ae; --line: #2d333b;
+  --accent: #ff7a3d; --accent-ink: #15191f; --accent-soft: #3a2418;
+  --ok: #51cf66; --ok-soft: #1c2e21; --warn: #f2b84b; --warn-soft: #33291a; --bad: #ff6b6b; --bad-soft: #3a1f21;
+  --chip: #262b33; --stage: #07090b; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--f-body); margin: 0; }
+[hidden] { display: none !important; }
+.wrap { max-width: 960px; margin: 0 auto; padding-block: 20px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 18px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: clamp(24px, 4vw, 34px); font-weight: 700; }
+h2 { font-size: 20px; font-weight: 700; }
+h3 { font-size: 16px; font-weight: 600; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font: 500 11px/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+header.top { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: end; justify-content: space-between; }
+.quotas { display: flex; flex-wrap: wrap; gap: 6px; }
+.q { font: 500 12px/1 var(--f-mono); padding: 6px 9px; border-radius: 99px; background: var(--chip); color: var(--muted); }
+.q.alerte { background: var(--warn-soft); color: var(--warn); }
+.q.limite { background: var(--bad-soft); color: var(--bad); }
+
+nav.steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 4px; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; }
+nav.steps button { all: unset; cursor: pointer; padding: 8px 10px; border-radius: 7px; display: grid; gap: 2px; min-width: 0; }
+nav.steps button .n { font: 500 11px/1 var(--f-mono); color: var(--muted); }
+nav.steps button .l { font: 600 13px/1.2 var(--f-body); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+nav.steps button[aria-current="true"] { background: var(--ink); color: var(--bg); }
+nav.steps button[aria-current="true"] .n { color: inherit; opacity: .7; }
+nav.steps button:disabled { cursor: default; opacity: .4; }
+nav.steps button.done .n::after { content: " ✓"; color: var(--ok); }
+nav.steps button:focus-visible { outline: 2px solid var(--accent); }
+@media (max-width: 560px) { nav.steps button .l { font-size: 11px; } }
+
+.banner { border-radius: var(--r); padding: 12px 14px; display: grid; gap: 4px; }
+.banner.info { background: var(--chip); }
+.banner.soumis { background: var(--accent-soft); }
+.banner.alerte { background: var(--warn-soft); color: var(--ink); }
+.banner.limite { background: var(--bad-soft); color: var(--ink); }
+.banner strong { font-weight: 600; }
+
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; display: grid; gap: 14px; min-width: 0; }
+.card > header { display: grid; gap: 4px; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+label.f { display: grid; gap: 6px; font-weight: 500; font-size: 14px; min-width: 0; }
+label.f small { font-weight: 400; color: var(--muted); }
+input[type=text], input[type=number], textarea, select {
+  font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; width: 100%; box-sizing: border-box; }
+textarea { min-height: 76px; resize: vertical; }
+input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+
+.formats { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px; }
+.fmt { all: unset; cursor: pointer; border: 1px solid var(--line); border-radius: 9px; padding: 12px 8px 10px; display: grid; justify-items: center; gap: 8px; text-align: center; }
+.fmt .shape { height: 46px; display: grid; place-items: center; }
+.fmt .shape i { display: block; border: 2px solid currentColor; border-radius: 3px; }
+.fmt b { font: 600 13px/1.2 var(--f-body); }
+.fmt span { font: 400 11px/1.2 var(--f-mono); color: var(--muted); }
+.fmt[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.fmt[aria-pressed="true"] b { color: var(--ink); }
+.fmt:focus-visible { outline: 2px solid var(--accent); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { all: unset; cursor: pointer; font-size: 13px; padding: 6px 11px; border-radius: 99px; background: var(--chip); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.chip:focus-visible { outline: 2px solid var(--accent); }
+
+.seg { display: inline-flex; background: var(--chip); border-radius: 9px; padding: 3px; gap: 3px; flex-wrap: wrap; }
+.seg button { all: unset; cursor: pointer; padding: 7px 12px; border-radius: 7px; font-size: 13px; font-weight: 500; }
+.seg button[aria-pressed="true"] { background: var(--panel); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+.seg button:focus-visible { outline: 2px solid var(--accent); }
+
+.btn { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 8px; font-weight: 600; font-size: 14px; background: var(--chip); color: var(--ink); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn.ghost { background: transparent; border: 1px solid var(--line); }
+.btn.small { padding: 6px 10px; font-size: 12px; }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; align-items: center; }
+
+.drop { border: 2px dashed var(--line); border-radius: var(--r); padding: 20px; text-align: center; display: grid; gap: 6px; justify-items: center; }
+.drop.over { border-color: var(--accent); background: var(--accent-soft); }
+
+.items { display: grid; gap: 10px; }
+.item { border: 1px solid var(--line); border-radius: 9px; padding: 12px; display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px; }
+.item.nothumb { grid-template-columns: minmax(0, 1fr); }
+.thumb { width: 112px; aspect-ratio: 16/10; border-radius: 6px; background: var(--stage); overflow: hidden; display: grid; place-items: center; color: #9aa3ad; font: 500 11px var(--f-mono); }
+.thumb img, .thumb video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.item .meta { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; justify-content: space-between; }
+.item .meta .name { font-weight: 600; overflow-wrap: anywhere; }
+.item .body { display: grid; gap: 8px; min-width: 0; }
+.tag { font: 500 11px/1 var(--f-mono); padding: 4px 7px; border-radius: 5px; background: var(--chip); color: var(--muted); }
+.tag.local { background: var(--warn-soft); color: var(--warn); }
+.iconbtns { display: flex; gap: 4px; }
+.iconbtns button { all: unset; cursor: pointer; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 6px; color: var(--muted); font-size: 14px; }
+.iconbtns button:hover { background: var(--chip); color: var(--ink); }
+.iconbtns button:focus-visible { outline: 2px solid var(--accent); }
+@media (max-width: 520px) { .item { grid-template-columns: minmax(0, 1fr); } .thumb { width: 100%; } }
+
+/* Planches */
+.scene { display: grid; gap: 12px; border-top: 1px solid var(--line); padding-top: 16px; }
+.scene:first-child { border-top: 0; padding-top: 0; }
+.scene .head { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: baseline; }
+.scene .tc { font: 500 12px var(--f-mono); color: var(--accent); }
+.scene .cols { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; }
+@media (max-width: 700px) { .scene .cols { grid-template-columns: minmax(0, 1fr); } }
+.frame { background: var(--stage); border-radius: 8px; overflow: hidden; width: 100%; max-width: 100%; position: relative; }
+.frame iframe, .frame img, .frame video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: cover; display: block; }
+.frame .ph { position: absolute; inset: 0; display: grid; place-items: center; color: #8d97a3; font: 500 12px var(--f-mono); padding: 12px; text-align: center; }
+.frame-wrap { display: grid; justify-items: center; }
+dl.spec { margin: 0; display: grid; align-content: start; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 12px; font-size: 14px; }
+dl.spec dt { color: var(--muted); font: 500 12px/1.9 var(--f-mono); }
+dl.spec dd { margin: 0; overflow-wrap: anywhere; }
+.transition-out { font: 500 12px var(--f-mono); color: var(--muted); display: flex; gap: 8px; align-items: center; }
+.transition-out::before { content: ""; width: 18px; height: 1px; background: currentColor; }
+
+/* Commentaires */
+.thread { display: grid; gap: 6px; }
+.comment { font-size: 14px; background: var(--bg); border-radius: 8px; padding: 8px 10px; display: grid; gap: 2px; }
+.comment.traite { opacity: .55; }
+.comment .who { font: 500 11px var(--f-mono); color: var(--muted); }
+.addc { display: flex; gap: 6px; }
+.addc textarea { min-height: 40px; height: 40px; }
+
+/* Narration */
+.seg-n { display: grid; gap: 6px; }
+.voices { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; max-height: 420px; overflow-y: auto; padding: 2px; }
+.voice { all: unset; cursor: pointer; border: 1px solid var(--line); border-radius: 9px; padding: 10px; display: grid; gap: 4px; }
+.voice[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.voice:focus-visible { outline: 2px solid var(--accent); }
+.voice b { font-weight: 600; }
+.voice small { color: var(--muted); font-size: 12px; }
+.voice .play { justify-self: start; font: 500 12px var(--f-mono); color: var(--accent); }
+.subprev { background: var(--stage); border-radius: 8px; position: relative; overflow: hidden; max-width: 100%; margin: 0 auto; width: 100%; }
+.subprev img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .75; }
+.subprev .cap { position: absolute; left: 6%; right: 6%; text-align: center; line-height: 1.2; }
+.subprev .cap span { transition: color .15s, background .15s; }
+.swatches { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.swatches input[type=color] { width: 40px; height: 32px; border: 1px solid var(--line); border-radius: 6px; padding: 2px; background: var(--bg); }
+
+.empty { text-align: center; padding: 26px 12px; color: var(--muted); display: grid; gap: 6px; justify-items: center; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 8px; font-size: 14px; z-index: 20; max-width: calc(100% - 32px); }
+.saved { font: 500 11px var(--f-mono); color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div style="display:grid;gap:6px;min-width:0">
+      <span class="eyebrow">Motion vidéo</span>
+      <h1 id="titre-h">__TITRE__</h1>
+    </div>
+    <div class="quotas" id="quotas"></div>
+  </header>
+
+  <nav class="steps" id="steps" aria-label="Étapes du projet"></nav>
+  <div id="banners" style="display:grid;gap:8px"></div>
+
+  <!-- 1. BRIEF -->
+  <section data-phase="brief" class="phase" style="display:grid;gap:18px">
+    <div class="card">
+      <header><span class="eyebrow">Réglages</span><h2>Le film en quelques mots</h2></header>
+      <div class="grid2">
+        <label class="f">Titre du projet<input type="text" id="b-titre" data-k="titre"></label>
+        <label class="f">Langue<select id="b-langue" data-k="langue"><option value="fr">Français</option><option value="en">Anglais</option><option value="es">Espagnol</option></select></label>
+      </div>
+      <div class="f" style="display:grid;gap:8px"><span style="font-weight:500;font-size:14px">Format de la vidéo</span>
+        <div class="formats" id="b-formats"></div>
+      </div>
+      <div class="grid2">
+        <label class="f">Durée cible<select id="b-duree" data-k="duree">
+          <option value="15">15 secondes</option><option value="30">30 secondes</option><option value="45">45 secondes</option>
+          <option value="60">1 minute</option><option value="90">1 min 30</option><option value="120">2 minutes</option><option value="libre">Selon le contenu</option></select></label>
+        <label class="f">Diffusion<small>Où sera vue la vidéo</small><input type="text" id="b-diffusion" data-k="diffusion" placeholder="LinkedIn, site web, salon, Instagram…"></label>
+      </div>
+      <label class="f">Message principal<small>La seule chose que le spectateur doit retenir</small><textarea id="b-message" data-k="message"></textarea></label>
+      <label class="f">Public visé<input type="text" id="b-public" data-k="public"></label>
+    </div>
+
+    <div class="card">
+      <header><span class="eyebrow">Matière</span><h2>Vos médias</h2><p class="muted">Photos, vidéos, logos, musique. Pour chacun, dites ce que vous voulez en faire.</p></header>
+      <div class="drop" id="drop">
+        <strong>Déposez vos fichiers ici</strong>
+        <span class="muted">ou</span>
+        <label class="btn ghost" for="file-in">Choisir des fichiers</label>
+        <input type="file" id="file-in" multiple hidden accept="image/*,video/*,audio/*,.svg,.pdf">
+        <small class="muted" id="drop-note">Jusqu'à 20 Mo par fichier ici. Au-delà, déposez-le dans le dossier du projet sur le PC et déclarez-le ci-dessous.</small>
+      </div>
+      <div class="row">
+        <input type="text" id="local-name" placeholder="Nom d'un fichier déposé dans le dossier du projet (ex. tournage-usine.mp4)" style="flex:1;min-width:200px">
+        <button class="btn small" id="local-add">Déclarer ce fichier</button>
+      </div>
+      <div class="items" id="medias"></div>
+    </div>
+
+    <div class="card">
+      <header><span class="eyebrow">À créer</span><h2>Médias à générer</h2><p class="muted">Photos (GPT Image) ou plans vidéo (Kling) à générer. Décrivez le sujet, l'ambiance, la lumière, le mouvement de caméra.</p></header>
+      <div class="items" id="agen"></div>
+      <div class="row"><button class="btn small" data-add-gen="image">Ajouter une photo</button><button class="btn small" data-add-gen="video">Ajouter un plan vidéo</button></div>
+    </div>
+
+    <div class="card">
+      <header><span class="eyebrow">Récit</span><h2>Enchaînement</h2></header>
+      <div class="seg" id="b-mode" role="group" aria-label="Mode d'enchaînement">
+        <button data-v="guide">Je décris l'enchaînement</button>
+        <button data-v="libre">Je donne l'esprit, l'IA compose</button>
+      </div>
+      <label class="f" id="b-ench-l"><span id="b-ench-t">Enchaînement souhaité</span><small id="b-ench-s"></small><textarea id="b-enchainement" data-k="enchainement" style="min-height:120px"></textarea></label>
+    </div>
+
+    <div class="card">
+      <header><span class="eyebrow">Mise en mouvement</span><h2>Transitions et animations</h2></header>
+      <div class="f" style="display:grid;gap:8px"><span style="font-weight:500;font-size:14px">Transitions entre les contenus</span>
+        <div class="chips" data-multi="transitions"></div>
+        <textarea id="b-transitions-note" data-k="transitions_note" placeholder="Précisions : rythme, moments forts, transitions à éviter…"></textarea>
+      </div>
+      <div class="f" style="display:grid;gap:8px"><span style="font-weight:500;font-size:14px">Animations graphiques</span>
+        <div class="chips" data-multi="anim_graphique"></div>
+        <textarea id="b-ag-note" data-k="anim_graphique_note" placeholder="Ex. une courbe qui se trace sur le chiffre clé, le logo qui se dessine à la fin…"></textarea>
+      </div>
+      <div class="f" style="display:grid;gap:8px"><span style="font-weight:500;font-size:14px">Animations de texte</span>
+        <div class="chips" data-multi="anim_texte"></div>
+        <textarea id="b-at-note" data-k="anim_texte_note" placeholder="Les textes à faire apparaître, leur style…"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <header><span class="eyebrow">Identité</span><h2>Charte et musique</h2></header>
+      <div class="f" style="display:grid;gap:8px"><span style="font-weight:500;font-size:14px">Couleurs de la marque</span>
+        <div class="swatches" id="b-couleurs"></div>
+      </div>
+      <div class="grid2">
+        <label class="f">Typographie<small>Nom de la police ou style recherché</small><input type="text" id="b-police" data-k="police"></label>
+        <label class="f">Références<small>Vidéos, sites ou styles qui vous plaisent</small><input type="text" id="b-references" data-k="references"></label>
+      </div>
+      <div class="f" style="display:grid;gap:8px"><span style="font-weight:500;font-size:14px">Musique de fond</span>
+        <div class="seg" id="b-musique" role="group" aria-label="Musique">
+          <button data-v="aucune">Aucune</button><button data-v="fournie">Fichier fourni</button><button data-v="ia">L'IA propose</button>
+        </div>
+        <input type="text" id="b-musique-note" data-k="musique_note" placeholder="Ambiance : énergique, calme, corporate, électro…">
+      </div>
+    </div>
+
+    <div class="card">
+      <header><span class="eyebrow">Voix</span><h2>Narration</h2></header>
+      <div class="seg" id="b-narration" role="group" aria-label="Narration">
+        <button data-v="non">Pas de narration</button><button data-v="oui">Avec narration</button>
+      </div>
+      <div id="b-narr-opts" style="display:grid;gap:12px">
+        <label class="f">Intention de la narration<small>Je rédigerai le texte, vous pourrez le modifier ensuite</small><textarea id="b-narr-intention" data-k="narration_intention" placeholder="Ton, points à dire, longueur…"></textarea></label>
+        <div class="row">
+          <label class="row" style="gap:8px"><input type="checkbox" id="b-soustitres" data-k="sous_titres"> Afficher en sous-titres</label>
+          <label class="row" style="gap:8px"><input type="checkbox" id="b-doublage" data-k="doublage"> Voix off (doublage ElevenLabs)</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <label class="f">Autres remarques<textarea id="b-notes" data-k="notes"></textarea></label>
+      <div class="actions"><span class="saved" id="saved-brief"></span><button class="btn primary" data-submit="brief">Valider le brief</button></div>
+    </div>
+  </section>
+
+  <!-- 2. PLANCHES -->
+  <section data-phase="planches" class="phase" hidden style="display:grid;gap:18px">
+    <div class="card">
+      <header><span class="eyebrow">Storyboard</span><h2>Planches</h2><p class="muted">Chaque scène avec son extrait animé. Commentez sous chaque scène ce qui doit changer.</p></header>
+      <div id="scenes" style="display:grid;gap:18px"></div>
+    </div>
+    <div class="card">
+      <h3>Remarque d'ensemble</h3>
+      <div id="th-planches"></div>
+      <div class="actions"><button class="btn" data-submit="planches" data-act="commenter">Envoyer mes commentaires</button><button class="btn primary" data-submit="planches" data-act="valider">Valider les planches</button></div>
+    </div>
+  </section>
+
+  <!-- 3. MÉDIAS GÉNÉRÉS -->
+  <section data-phase="generation" class="phase" hidden style="display:grid;gap:18px">
+    <div class="card">
+      <header><span class="eyebrow">Génération</span><h2>Médias générés</h2><p class="muted">Gardez, ou commentez pour que je régénère. Le coût de chaque génération est indiqué.</p></header>
+      <div class="items" id="generes"></div>
+      <div class="actions"><button class="btn" data-submit="generation" data-act="commenter">Régénérer ce qui est commenté</button><button class="btn primary" data-submit="generation" data-act="valider">Valider les médias</button></div>
+    </div>
+  </section>
+
+  <!-- 4. NARRATION -->
+  <section data-phase="narration" class="phase" hidden style="display:grid;gap:18px">
+    <div class="card">
+      <header><span class="eyebrow">Texte</span><h2>Narration</h2><p class="muted">Modifiez librement le texte, scène par scène.</p></header>
+      <div id="narr-segs" style="display:grid;gap:14px"></div>
+    </div>
+    <div class="card" id="card-voix">
+      <header><span class="eyebrow">Doublage</span><h2>Voix</h2><p class="muted">Écoutez et choisissez une voix.</p></header>
+      <label class="row" style="gap:8px"><input type="checkbox" id="n-doublage"> Voix off activée</label>
+      <div class="row"><input type="text" id="voix-filtre" placeholder="Filtrer : femme, narration, calme…" style="flex:1;min-width:180px"></div>
+      <div class="voices" id="voices"></div>
+    </div>
+    <div class="card" id="card-st">
+      <header><span class="eyebrow">Affichage</span><h2>Sous-titres</h2></header>
+      <label class="row" style="gap:8px"><input type="checkbox" id="n-st"> Sous-titres affichés</label>
+      <div class="grid2">
+        <label class="f">Police<select id="st-police"><option value="Instrument Sans">Sobre</option><option value="Archivo Black">Impact</option><option value="DM Serif Display">Élégante</option><option value="JetBrains Mono">Technique</option></select></label>
+        <label class="f">Taille<select id="st-taille"><option value="s">Petite</option><option value="m" selected>Moyenne</option><option value="l">Grande</option></select></label>
+        <label class="f">Position<select id="st-position"><option value="bas">En bas</option><option value="centre">Au centre</option><option value="haut">En haut</option></select></label>
+        <label class="f">Style<select id="st-style"><option value="contour">Contour</option><option value="bandeau">Bandeau</option><option value="karaoke">Mot surligné</option><option value="boite">Boîte par mot</option></select></label>
+      </div>
+      <div class="swatches"><span class="muted">Texte</span><input type="color" id="st-couleur" value="#ffffff"><span class="muted">Accent</span><input type="color" id="st-accent" value="#ff7a3d"><label class="row" style="gap:6px"><input type="checkbox" id="st-maj"> Majuscules</label></div>
+      <div class="subprev" id="st-prev"><div class="cap" id="st-cap"></div></div>
+      <div id="th-sous-titres"></div>
+    </div>
+    <div class="card">
+      <div id="th-narration"></div>
+      <div class="actions"><span class="saved" id="saved-narr"></span><button class="btn" data-submit="narration" data-act="commenter">Envoyer mes commentaires</button><button class="btn primary" data-submit="narration" data-act="valider">Valider la narration</button></div>
+    </div>
+  </section>
+
+  <!-- 5. RENDU -->
+  <section data-phase="rendu" class="phase" hidden style="display:grid;gap:18px">
+    <div class="card">
+      <header><span class="eyebrow">Aperçu</span><h2>La vidéo complète</h2><p class="muted" id="rendu-sub">Aperçu en basse définition pour une dernière relecture.</p></header>
+      <div class="frame-wrap"><div class="frame" id="rendu-frame"><div class="ph">L'aperçu apparaîtra ici une fois le montage prêt.</div></div></div>
+      <div id="th-rendu"></div>
+      <div class="actions"><button class="btn" data-submit="rendu" data-act="commenter">Envoyer mes commentaires</button><button class="btn primary" data-submit="rendu" data-act="valider">Générer le MP4 final</button></div>
+    </div>
+    <div class="card" id="card-mp4" hidden>
+      <header><span class="eyebrow">Livrable</span><h2>MP4 final</h2></header>
+      <dl class="spec" id="mp4-spec"></dl>
+    </div>
+  </section>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(() => {
+const PHASES = [
+  ["brief", "Brief"], ["planches", "Planches"], ["generation", "Médias générés"], ["narration", "Narration"], ["rendu", "Rendu"]];
+const FORMATS = [
+  ["16:9", "Paysage", "1920×1080", 40, 22.5], ["9:16", "Portrait", "1080×1920", 22.5, 40], ["1:1", "Carré", "1080×1080", 32, 32],
+  ["4:3", "Paysage 4:3", "1440×1080", 38, 28.5], ["3:4", "Portrait 3:4", "1080×1440", 28.5, 38]];
+const CHOICES = {
+  transitions: ["Coupe franche", "Fondu", "Glissement", "Zoom", "Masque / volet", "Flash", "Raccord de mouvement", "Morphing", "L'IA choisit"],
+  anim_graphique: ["Formes géométriques", "Lignes et tracés", "Compteurs de chiffres", "Graphiques animés", "Icônes", "Particules", "Effet Ken Burns", "Logo animé", "Cartes et parcours"],
+  anim_texte: ["Titres d'ouverture", "Mots-clés en surimpression", "Chiffres clés", "Citations", "Bandeaux nom / fonction", "Typographie cinétique", "Listes à puces animées", "Appel à l'action final"],
+};
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const tc = s => { s = Number(s) || 0; const m = Math.floor(s / 60), r = Math.round((s % 60) * 10) / 10; return `${String(m).padStart(2, "0")}:${String(r.toFixed(1)).padStart(4, "0")}`; };
+const ratio = f => { const [w, h] = String(f || "16:9").split(":").map(Number); return w / h; };
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 3200); }
+function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+const focusedIn = el => el && el.contains(document.activeElement);
+
+const S = { etat: {}, brief: {}, medias: [], agen: [], scenes: [], generes: [], narration: {}, voix: [], quotas: {}, rendu: {}, comments: [] };
+let db = null, assets = null, userApi = null, me = null, view = null;
+
+/* ---------- Navigation ---------- */
+function phaseIdx(p) { return Math.max(0, PHASES.findIndex(x => x[0] === p)); }
+function renderSteps() {
+  const max = phaseIdx(S.etat.phase_max || S.etat.phase || "brief");
+  const cur = view || S.etat.phase || "brief";
+  $("#steps").innerHTML = PHASES.map(([k, l], i) =>
+    `<button data-go="${k}" ${i > max ? "disabled" : ""} class="${i < max ? "done" : ""}" aria-current="${k === cur}"><span class="n">${i + 1}</span><span class="l">${l}</span></button>`).join("");
+  $$(".phase").forEach(s => s.hidden = s.dataset.phase !== cur);
+}
+$("#steps").addEventListener("click", e => { const b = e.target.closest("[data-go]"); if (!b || b.disabled) return; view = b.dataset.go; try { localStorage.setItem("mv-view", view); } catch {} renderSteps(); renderAll(); });
+
+/* ---------- Bandeaux ---------- */
+function renderBanners() {
+  const out = [];
+  const q = S.quotas || {};
+  for (const [k, label, fmt] of [["openrouter", "OpenRouter (images et vidéos)", v => `${v.restant_usd} $ restants sur ${v.limite_usd} $`], ["elevenlabs", "ElevenLabs (voix)", v => `${(v.restant ?? 0).toLocaleString("fr-FR")} caractères restants`]]) {
+    const v = q[k]; if (!v || !["alerte", "limite"].includes(v.etat)) continue;
+    out.push(`<div class="banner ${v.etat}"><strong>${v.etat === "limite" ? "Clé à sa limite" : "Crédit bientôt épuisé"} : ${label}</strong><span>${esc(fmt(v))}. Remise à zéro le ${esc(v.reset || "?")}.${v.etat === "limite" ? " Les générations qui en dépendent sont bloquées jusque-là." : ""}</span></div>`);
+  }
+  const e = S.etat;
+  if (e.statut === "soumis") out.push(`<div class="banner soumis"><strong>Envoyé à Claude</strong><span>Revenez dans la conversation et dites « c'est prêt » pour que Claude reprenne.</span></div>`);
+  else if (e.statut === "en_cours") out.push(`<div class="banner info"><strong>Claude travaille</strong><span>${esc(e.message || "Génération en cours.")}</span></div>`);
+  else if (e.message) out.push(`<div class="banner info"><span>${esc(e.message)}</span></div>`);
+  $("#banners").innerHTML = out.join("");
+  $("#quotas").innerHTML = [["openrouter", v => `OpenRouter ${v.restant_usd} $`], ["elevenlabs", v => `ElevenLabs ${Math.round((v.restant ?? 0) / 1000)}k car.`]]
+    .filter(([k]) => q[k] && q[k].etat !== "erreur").map(([k, f]) => `<span class="q ${q[k].etat}" title="Mis à jour le ${esc(q.maj || "")}">${esc(f(q[k]))}</span>`).join("");
+}
+
+/* ---------- Commentaires ---------- */
+function thread(cible) {
+  const list = S.comments.filter(c => c.cible === cible).sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+  return `<div class="thread" data-thread="${esc(cible)}">${list.map(c =>
+    `<div class="comment ${c.traite ? "traite" : ""}"><span class="who">${c.auteur === "claude" ? "Claude" : "Vous"} · ${esc((c.date || "").slice(5, 16).replace("T", " "))}${c.traite ? " · traité" : ""}</span><span>${esc(c.texte)}</span></div>`).join("")}
+    <div class="addc"><textarea id="c-${esc(cible)}" placeholder="Votre commentaire…" aria-label="Commentaire"></textarea><button class="btn small" data-comment="${esc(cible)}">Commenter</button></div></div>`;
+}
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-comment]"); if (!b) return;
+  const cible = b.dataset.comment, ta = b.parentElement.querySelector("textarea"), txt = ta.value.trim();
+  if (!txt) return ta.focus();
+  if (!db) return toast("Connexion à la base indisponible.");
+  b.disabled = true;
+  try { await db.collection("commentaires").add({ cible, texte: txt, date: new Date().toISOString(), auteur: me || "utilisateur", traite: false }); ta.value = ""; }
+  catch (err) { toast("Commentaire non enregistré : " + (err.message || err.code)); }
+  b.disabled = false;
+});
+function fillThreads() { $$("[id^=th-]").forEach(el => { if (!focusedIn(el)) el.innerHTML = thread(el.id.slice(3)); }); }
+
+/* ---------- Brief ---------- */
+const saveBrief = debounce(async () => {
+  if (!db) return;
+  try { await db.doc("projet/brief").set(S.brief); $("#saved-brief").textContent = "Enregistré " + new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }); }
+  catch (err) { $("#saved-brief").textContent = "Non enregistré : " + (err.message || err.code); }
+}, 700);
+function setBrief(k, v) { S.brief[k] = v; S.brief.maj = new Date().toISOString(); saveBrief(); if (k === "titre") $("#titre-h").textContent = v || "__TITRE__"; }
+
+function buildBrief() {
+  $("#b-formats").innerHTML = FORMATS.map(([v, l, px, w, h]) =>
+    `<button class="fmt" data-fmt="${v}" aria-pressed="false"><span class="shape"><i style="width:${w}px;height:${h}px"></i></span><b>${l}</b><span>${v} · ${px}</span></button>`).join("");
+  $$("[data-multi]").forEach(box => box.innerHTML = CHOICES[box.dataset.multi].map(c => `<button class="chip" aria-pressed="false" data-chip="${esc(c)}">${esc(c)}</button>`).join(""));
+  $("#b-couleurs").innerHTML = [0, 1, 2, 3].map(i => `<input type="color" id="b-col-${i}" data-col="${i}" aria-label="Couleur ${i + 1}">`).join("") + `<button class="btn small ghost" id="b-col-clear">Aucune charte</button>`;
+}
+function paintBrief() {
+  const B = S.brief;
+  $$("[data-k]").forEach(el => {
+    if (el === document.activeElement) return;
+    const v = B[el.dataset.k];
+    if (el.type === "checkbox") el.checked = !!v; else el.value = v ?? (el.tagName === "SELECT" ? el.options[0].value : "");
+  });
+  $$("[data-fmt]").forEach(b => b.setAttribute("aria-pressed", b.dataset.fmt === (B.format || "")));
+  $$("[data-multi]").forEach(box => { const sel = B[box.dataset.multi] || []; $$("[data-chip]", box).forEach(c => c.setAttribute("aria-pressed", sel.includes(c.dataset.chip))); });
+  const mode = B.mode_enchainement || "guide";
+  $$("#b-mode button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === mode));
+  $("#b-ench-t").textContent = mode === "guide" ? "Enchaînement souhaité" : "Esprit du film";
+  $("#b-ench-s").textContent = mode === "guide" ? "L'ordre des médias, ce qui se passe à chaque moment" : "L'histoire, l'émotion, le rythme : je compose l'enchaînement à partir de vos médias";
+  $$("#b-musique button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === (B.musique || "aucune")));
+  const narr = B.narration || "non";
+  $$("#b-narration button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === narr));
+  $("#b-narr-opts").hidden = narr !== "oui";
+  const cols = B.couleurs || [];
+  [0, 1, 2, 3].forEach(i => { const el = $("#b-col-" + i); if (el !== document.activeElement) el.value = cols[i] || "#cccccc"; el.style.opacity = cols[i] ? 1 : .35; });
+  $("#titre-h").textContent = B.titre || "__TITRE__";
+}
+document.addEventListener("input", e => {
+  const el = e.target;
+  if (el.dataset.k) setBrief(el.dataset.k, el.type === "checkbox" ? el.checked : el.value);
+  if (el.dataset.col !== undefined) { const c = [...(S.brief.couleurs || [])]; c[+el.dataset.col] = el.value; setBrief("couleurs", c); paintBrief(); }
+});
+document.addEventListener("change", e => { const el = e.target; if (el.dataset.k && (el.type === "checkbox" || el.tagName === "SELECT")) setBrief(el.dataset.k, el.type === "checkbox" ? el.checked : el.value); });
+document.addEventListener("click", e => {
+  const f = e.target.closest("[data-fmt]"); if (f) { setBrief("format", f.dataset.fmt); paintBrief(); return; }
+  const c = e.target.closest("[data-chip]"); if (c) { const k = c.closest("[data-multi]").dataset.multi; const s = new Set(S.brief[k] || []); s.has(c.dataset.chip) ? s.delete(c.dataset.chip) : s.add(c.dataset.chip); setBrief(k, [...s]); paintBrief(); return; }
+  const m = e.target.closest("#b-mode button"); if (m) { setBrief("mode_enchainement", m.dataset.v); paintBrief(); return; }
+  const mu = e.target.closest("#b-musique button"); if (mu) { setBrief("musique", mu.dataset.v); paintBrief(); return; }
+  const n = e.target.closest("#b-narration button"); if (n) { setBrief("narration", n.dataset.v); paintBrief(); return; }
+  if (e.target.id === "b-col-clear") { setBrief("couleurs", []); paintBrief(); }
+});
+
+/* ---------- Médias fournis ---------- */
+function kindOf(type, name) { if (/^image\//.test(type) || /\.(png|jpe?g|webp|gif|svg)$/i.test(name)) return "image"; if (/^video\//.test(type) || /\.(mp4|mov|webm|m4v)$/i.test(name)) return "video"; if (/^audio\//.test(type) || /\.(mp3|wav|m4a|aac|ogg)$/i.test(name)) return "audio"; return "autre"; }
+function thumb(m) {
+  if (m.url && m.type === "image") return `<img src="${esc(m.url)}" alt="">`;
+  if (m.url && m.type === "video") return `<video src="${esc(m.url)}" muted preload="metadata" controls playsinline></video>`;
+  return esc(m.type === "audio" ? "audio" : m.local ? "sur le PC" : m.type);
+}
+function renderMedias() {
+  const box = $("#medias"); if (focusedIn(box)) return;
+  const list = [...S.medias].sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0));
+  box.innerHTML = list.length ? list.map((m, i) => `
+    <div class="item" data-media="${esc(m._id)}">
+      <div class="thumb">${thumb(m)}</div>
+      <div class="body">
+        <div class="meta"><span class="name">${esc(m.nom)}</span>
+          <span class="row" style="gap:6px">${m.local ? '<span class="tag local">dossier du projet</span>' : ""}<span class="tag">${esc(m.type)}${m.taille ? " · " + (m.taille / 1048576).toFixed(1) + " Mo" : ""}</span>
+          <span class="iconbtns"><button data-mv="${esc(m._id)}" data-d="-1" ${i === 0 ? "disabled" : ""} aria-label="Monter">↑</button><button data-mv="${esc(m._id)}" data-d="1" ${i === list.length - 1 ? "disabled" : ""} aria-label="Descendre">↓</button><button data-rm-media="${esc(m._id)}" aria-label="Retirer">✕</button></span></span></div>
+        ${m.type === "audio" && m.url ? `<audio src="${esc(m.url)}" controls preload="none" style="width:100%"></audio>` : ""}
+        <textarea data-usage="${esc(m._id)}" placeholder="Ce que je veux en faire : ouverture, fond du titre, plan de fin, logo en signature…" aria-label="Usage de ${esc(m.nom)}">${esc(m.usage || "")}</textarea>
+      </div>
+    </div>`).join("") : `<div class="empty"><strong>Aucun média pour l'instant</strong><span>Déposez vos photos, vidéos ou logos ci-dessus.</span></div>`;
+}
+async function uploadFiles(files) {
+  if (!db) return toast("Connexion à la base indisponible.");
+  let ordre = S.medias.length;
+  for (const f of files) {
+    const type = kindOf(f.type, f.name);
+    if (f.size > 20 * 1048576 || !assets) {
+      await db.collection("medias").add({ nom: f.name, type, taille: f.size, local: true, usage: "", ordre: ordre++ });
+      toast(`${f.name} est trop lourd pour la page : déposez-le dans le dossier du projet.`); continue;
+    }
+    $("#drop-note").textContent = `Envoi de ${f.name}…`;
+    try { const r = await assets.upload(f); await db.collection("medias").add({ nom: f.name, type, taille: f.size, asset_id: r.id, url: r.url, usage: "", ordre: ordre++ }); }
+    catch (err) { toast(`${f.name} non envoyé : ${err.message || err.code}`); }
+  }
+  $("#drop-note").textContent = "Jusqu'à 20 Mo par fichier ici. Au-delà, déposez-le dans le dossier du projet sur le PC et déclarez-le ci-dessous.";
+}
+const drop = $("#drop");
+["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => uploadFiles([...e.dataTransfer.files]));
+$("#file-in").addEventListener("change", e => { uploadFiles([...e.target.files]); e.target.value = ""; });
+$("#local-add").addEventListener("click", async () => {
+  const n = $("#local-name").value.trim(); if (!n || !db) return;
+  await db.collection("medias").add({ nom: n, type: kindOf("", n), local: true, usage: "", ordre: S.medias.length }); $("#local-name").value = "";
+});
+const saveUsage = debounce((col, id, data) => db && db.collection(col).doc(id).update(data).catch(err => toast("Non enregistré : " + (err.message || err.code))), 600);
+document.addEventListener("input", e => {
+  const u = e.target.dataset.usage; if (u) saveUsage("medias", u, { usage: e.target.value });
+  const g = e.target.dataset.gen; if (g) saveUsage("a_generer", g, { [e.target.dataset.f]: e.target.type === "number" ? Number(e.target.value) : e.target.value });
+});
+document.addEventListener("change", e => { const g = e.target.dataset.gen; if (g && e.target.tagName === "SELECT") saveUsage("a_generer", g, { [e.target.dataset.f]: e.target.value }); });
+document.addEventListener("focusout", () => setTimeout(() => { renderMedias(); renderAgen(); fillThreads(); renderNarration(); }, 0));
+document.addEventListener("click", async e => {
+  const mv = e.target.closest("[data-mv]");
+  if (mv && db) { const list = [...S.medias].sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0)); const i = list.findIndex(m => m._id === mv.dataset.mv), j = i + Number(mv.dataset.d); if (j < 0 || j >= list.length) return;
+    [list[i], list[j]] = [list[j], list[i]]; await Promise.all(list.map((m, k) => m.ordre !== k ? db.collection("medias").doc(m._id).update({ ordre: k }) : null)); return; }
+  const rm = e.target.closest("[data-rm-media]");
+  if (rm && db) { if (rm.dataset.confirm !== "1") { rm.dataset.confirm = "1"; rm.textContent = "Retirer ?"; rm.style.width = "auto"; rm.style.padding = "0 6px"; return; }
+    const m = S.medias.find(x => x._id === rm.dataset.rmMedia); await db.collection("medias").doc(rm.dataset.rmMedia).delete(); if (m && m.asset_id && assets) assets.delete(m.asset_id).catch(() => {}); }
+});
+
+/* ---------- Médias à générer ---------- */
+function renderAgen() {
+  const box = $("#agen"); if (focusedIn(box)) return;
+  const list = [...S.agen].sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0));
+  const srcOpts = sel => `<option value="">Aucune</option>` + S.medias.filter(m => m.type === "image").map(m => `<option ${sel === m.nom ? "selected" : ""}>${esc(m.nom)}</option>`).join("");
+  box.innerHTML = list.length ? list.map(g => `
+    <div class="item nothumb" data-g="${esc(g._id)}"><div class="body">
+      <div class="meta"><span class="name">${g.type === "video" ? "Plan vidéo" : "Photo"}</span>
+        <span class="iconbtns"><button data-rm-gen="${esc(g._id)}" aria-label="Retirer">✕</button></span></div>
+      <textarea data-gen="${esc(g._id)}" data-f="brief" placeholder="${g.type === "video" ? "Ex. travelling lent dans un atelier lumineux, une main ajuste une pièce, lumière dorée de fin de journée" : "Ex. portrait d'une équipe autour d'une table, lumière naturelle, tons chauds"}" aria-label="Brief">${esc(g.brief || "")}</textarea>
+      <div class="row">
+        ${g.type === "video" ? `<label class="row" style="gap:6px">Durée <select data-gen="${esc(g._id)}" data-f="duree">${[3, 5, 8, 10, 15].map(d => `<option value="${d}" ${Number(g.duree || 5) === d ? "selected" : ""}>${d} s</option>`).join("")}</select></label>
+        <label class="row" style="gap:6px">Image de départ <select data-gen="${esc(g._id)}" data-f="source">${srcOpts(g.source)}</select></label>` :
+        `<label class="row" style="gap:6px">Image de référence <select data-gen="${esc(g._id)}" data-f="source">${srcOpts(g.source)}</select></label>`}
+      </div>
+    </div></div>`).join("") : `<div class="empty"><span>Rien à générer pour l'instant.</span></div>`;
+}
+document.addEventListener("click", async e => {
+  const a = e.target.closest("[data-add-gen]"); if (a && db) { await db.collection("a_generer").add({ type: a.dataset.addGen, brief: "", duree: 5, source: "", ordre: S.agen.length }); return; }
+  const r = e.target.closest("[data-rm-gen]"); if (r && db) await db.collection("a_generer").doc(r.dataset.rmGen).delete();
+});
+
+/* ---------- Planches ---------- */
+function frameBox(ar, inner) { const w = ar >= 1 ? "100%" : `${Math.round(ar * 100 / (16 / 9))}%`; return `<div class="frame" style="aspect-ratio:${ar};width:${w}">${inner}</div>`; }
+function preview(src, type) {
+  if (!src) return `<div class="ph">Extrait en préparation</div>`;
+  if (type === "html" || /\.html?$/.test(src)) return `<iframe src="${esc(src)}" title="Extrait animé" loading="lazy"></iframe>`;
+  if (type === "video" || /\.(mp4|webm)$/.test(src)) return `<video src="${esc(src)}" muted loop autoplay playsinline controls></video>`;
+  return `<img src="${esc(src)}" alt="">`;
+}
+function renderScenes() {
+  const box = $("#scenes"); if (focusedIn(box)) return;
+  const ar = ratio(S.brief.format);
+  const list = [...S.scenes].sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0));
+  let t = 0;
+  box.innerHTML = list.length ? list.map((s, i) => { const start = s.debut ?? t; t = start + Number(s.duree || 0); return `
+    <article class="scene">
+      <div class="head"><span class="tc">${tc(start)} → ${tc(t)}</span><h3>${i + 1}. ${esc(s.titre)}</h3></div>
+      <div class="cols">
+        <div class="frame-wrap">${frameBox(ar, preview(s.apercu, s.apercu_type))}</div>
+        <dl class="spec">
+          ${s.description ? `<dt>Scène</dt><dd>${esc(s.description)}</dd>` : ""}
+          ${s.medias && s.medias.length ? `<dt>Médias</dt><dd>${esc([].concat(s.medias).join(", "))}</dd>` : ""}
+          ${s.texte_ecran ? `<dt>Texte</dt><dd>${esc(s.texte_ecran)}</dd>` : ""}
+          ${s.animation ? `<dt>Animation</dt><dd>${esc(s.animation)}</dd>` : ""}
+          ${s.narration ? `<dt>Voix</dt><dd>${esc(s.narration)}</dd>` : ""}
+        </dl>
+      </div>
+      ${s.transition && i < list.length - 1 ? `<div class="transition-out">Transition : ${esc(s.transition)}</div>` : ""}
+      ${thread("scene:" + s._id)}
+    </article>`; }).join("") : `<div class="empty"><strong>Les planches arrivent</strong><span>Claude les prépare à partir de votre brief.</span></div>`;
+}
+
+/* ---------- Médias générés ---------- */
+function renderGeneres() {
+  const box = $("#generes"); if (focusedIn(box)) return;
+  const list = [...S.generes].sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0));
+  box.innerHTML = list.length ? list.map(g => `
+    <div class="item" style="grid-template-columns:minmax(0,1fr)"><div class="body">
+      <div class="meta"><span class="name">${esc(g.titre || (g.type === "video" ? "Plan vidéo" : "Photo"))}</span>
+        <span class="row" style="gap:6px">${g.scene ? `<span class="tag">${esc(g.scene)}</span>` : ""}${g.cout != null ? `<span class="tag">${Number(g.cout).toFixed(2)} $</span>` : ""}${g.statut ? `<span class="tag">${esc(g.statut)}</span>` : ""}</span></div>
+      <div class="frame-wrap">${frameBox(ratio(g.ratio || S.brief.format), preview(g.url, g.type))}</div>
+      ${g.prompt ? `<details><summary class="muted">Prompt utilisé</summary><p class="mono" style="font-size:12px;margin-top:6px">${esc(g.prompt)}</p></details>` : ""}
+      ${thread("genere:" + g._id)}
+    </div></div>`).join("") : `<div class="empty"><strong>Aucun média généré pour l'instant</strong><span>Ils apparaîtront ici après validation des planches.</span></div>`;
+}
+
+/* ---------- Narration ---------- */
+const saveNarr = debounce(async () => { if (!db) return; try { await db.doc("projet/narration").set(S.narration); $("#saved-narr").textContent = "Enregistré " + new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }); } catch (err) { $("#saved-narr").textContent = "Non enregistré : " + (err.message || err.code); } }, 700);
+function setNarr(patch) { Object.assign(S.narration, patch); saveNarr(); }
+function renderNarration() {
+  const N = S.narration, segs = N.segments || [];
+  const box = $("#narr-segs");
+  if (!focusedIn(box)) box.innerHTML = segs.length ? segs.map((s, i) => `
+    <div class="seg-n"><div class="row" style="justify-content:space-between"><span class="eyebrow">${esc(s.scene || "Segment " + (i + 1))}</span><span class="mono muted" style="font-size:12px" id="cnt-${i}">${(s.texte || "").length} car. · ~${Math.round((s.texte || "").split(/\s+/).filter(Boolean).length / 2.5)} s</span></div>
+      <textarea data-seg="${i}" aria-label="Texte du segment ${i + 1}">${esc(s.texte || "")}</textarea></div>`).join("")
+    : `<div class="empty"><strong>Le texte de narration arrive</strong><span>Claude le rédige à partir du brief et des planches.</span></div>`;
+  $("#n-doublage").checked = N.doublage ?? !!S.brief.doublage;
+  $("#n-st").checked = N.sous_titres?.actif ?? !!S.brief.sous_titres;
+  const st = N.sous_titres || {};
+  for (const k of ["police", "taille", "position", "style", "couleur", "accent"]) { const el = $("#st-" + k); if (el !== document.activeElement && st[k]) el.value = st[k]; }
+  $("#st-maj").checked = !!st.majuscules;
+  renderVoices(); paintSub();
+}
+document.addEventListener("input", e => {
+  const i = e.target.dataset.seg; if (i === undefined) return;
+  const segs = [...(S.narration.segments || [])]; segs[+i] = { ...segs[+i], texte: e.target.value }; setNarr({ segments: segs });
+  const v = e.target.value; const c = $("#cnt-" + i); if (c) c.textContent = `${v.length} car. · ~${Math.round(v.split(/\s+/).filter(Boolean).length / 2.5)} s`;
+});
+$("#n-doublage").addEventListener("change", e => setNarr({ doublage: e.target.checked }));
+$("#n-st").addEventListener("change", e => setNarr({ sous_titres: { ...(S.narration.sous_titres || {}), actif: e.target.checked } }));
+["police", "taille", "position", "style", "couleur", "accent", "maj"].forEach(k => $("#st-" + k).addEventListener("input", e => {
+  setNarr({ sous_titres: { ...(S.narration.sous_titres || {}), [k === "maj" ? "majuscules" : k]: e.target.type === "checkbox" ? e.target.checked : e.target.value } }); paintSub(); }));
+
+let audioEl = null;
+function renderVoices() {
+  const box = $("#voices"), f = $("#voix-filtre").value.trim().toLowerCase();
+  const sel = S.narration.voix_id;
+  const tr = { female: "femme", male: "homme", young: "jeune", middle_aged: "adulte", old: "âgée", neutral: "neutre" };
+  const list = S.voix.filter(v => !f || [v.nom, v.description, tr[v.genre], tr[v.age], v.usage, v.accent].join(" ").toLowerCase().includes(f));
+  box.innerHTML = list.length ? list.map(v => `<button class="voice" data-voice="${esc(v.id)}" aria-pressed="${v.id === sel}">
+      <b>${esc(v.nom)}</b><small>${esc([tr[v.genre], tr[v.age], v.description].filter(Boolean).join(" · "))}</small>
+      ${v.url ? `<span class="play" data-play="${esc(v.url)}">▶ Écouter</span>` : `<small>Extrait indisponible</small>`}</button>`).join("")
+    : `<div class="empty"><span>${S.voix.length ? "Aucune voix ne correspond au filtre." : "La liste des voix arrive avec la narration."}</span></div>`;
+}
+$("#voix-filtre").addEventListener("input", renderVoices);
+$("#voices").addEventListener("click", e => {
+  const p = e.target.closest("[data-play]");
+  if (p) { e.stopPropagation(); if (audioEl) { audioEl.pause(); if (audioEl.dataset.src === p.dataset.play) { audioEl = null; return; } } audioEl = new Audio(p.dataset.play); audioEl.dataset.src = p.dataset.play; audioEl.play().catch(() => toast("Lecture impossible.")); return; }
+  const v = e.target.closest("[data-voice]"); if (!v) return;
+  const voice = S.voix.find(x => x.id === v.dataset.voice); setNarr({ voix_id: voice.id, voix_nom: voice.nom }); renderVoices();
+});
+
+let subTimer = null;
+function paintSub() {
+  const st = { police: "Instrument Sans", taille: "m", position: "bas", style: "contour", couleur: "#ffffff", accent: "#ff7a3d", ...(S.narration.sous_titres || {}) };
+  const ar = ratio(S.brief.format), prev = $("#st-prev");
+  prev.style.aspectRatio = ar; prev.style.maxWidth = ar < 1 ? "300px" : "560px";
+  const img = S.medias.find(m => m.type === "image" && m.url);
+  const old = prev.querySelector("img"); if (img && !old) prev.insertAdjacentHTML("afterbegin", `<img src="${esc(img.url)}" alt="">`);
+  const seg = (S.narration.segments || []).find(s => s.texte) || { texte: "Voici à quoi ressembleront vos sous-titres dans la vidéo" };
+  let words = seg.texte.split(/\s+/).slice(0, 8); if (st.majuscules) words = words.map(w => w.toUpperCase());
+  const cap = $("#st-cap"), size = { s: 3.2, m: 4.4, l: 6 }[st.taille] * (ar < 1 ? 1.6 : 1);
+  cap.style.cssText = `font-family:"${st.police}",sans-serif;font-size:${size}cqw;color:${st.couleur};${st.position === "haut" ? "top:8%" : st.position === "centre" ? "top:50%;transform:translateY(-50%)" : "bottom:9%"};font-weight:${st.police === "Archivo Black" ? 400 : 700}`;
+  prev.style.containerType = "inline-size";
+  const outline = `text-shadow:0 0 3px #000,0 0 3px #000,0 2px 6px rgba(0,0,0,.6)`;
+  cap.innerHTML = (st.style === "bandeau" ? `<span style="background:rgba(0,0,0,.65);padding:.15em .4em;box-decoration-break:clone;-webkit-box-decoration-break:clone">${words.map(esc).join(" ")}</span>` :
+    words.map((w, i) => `<span data-w="${i}" style="${st.style === "contour" ? outline : st.style === "boite" ? "padding:0 .15em;border-radius:.15em" : outline}">${esc(w)}</span>`).join(" "));
+  clearInterval(subTimer); let k = 0;
+  if (st.style === "karaoke" || st.style === "boite") subTimer = setInterval(() => { $$("#st-cap [data-w]").forEach((s, i) => { const on = i === k % words.length; s.style.color = st.style === "karaoke" && on ? st.accent : st.couleur; s.style.background = st.style === "boite" && on ? st.accent : "transparent"; }); k++; }, 420);
+}
+
+/* ---------- Rendu ---------- */
+function renderRendu() {
+  const R = S.rendu || {}, ar = ratio(S.brief.format), fr = $("#rendu-frame");
+  fr.style.aspectRatio = ar; fr.style.width = ar >= 1 ? "100%" : `${Math.round(ar * 100 / (16 / 9))}%`;
+  const cur = fr.dataset.src || "";
+  if (R.apercu_url !== cur) { fr.dataset.src = R.apercu_url || ""; fr.innerHTML = R.apercu_url ? preview(R.apercu_url, R.apercu_type) : `<div class="ph">L'aperçu apparaîtra ici une fois le montage prêt.</div>`; }
+  $("#card-mp4").hidden = !R.mp4_chemin && !R.mp4_statut;
+  $("#mp4-spec").innerHTML = [["Statut", R.mp4_statut], ["Fichier", R.mp4_chemin], ["Durée", R.duree && tc(R.duree)], ["Taille", R.taille_mo && R.taille_mo + " Mo"], ["Définition", R.definition]]
+    .filter(x => x[1]).map(([k, v]) => `<dt>${k}</dt><dd class="${k === "Fichier" ? "mono" : ""}">${esc(v)}</dd>`).join("");
+}
+
+/* ---------- Validation ---------- */
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-submit]"); if (!b) return;
+  if (!db) return toast("Connexion à la base indisponible.");
+  const phase = b.dataset.submit, act = b.dataset.act || "valider";
+  if (phase === "brief" && !S.brief.format) { toast("Choisissez d'abord le format de la vidéo."); $("#b-formats").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+  b.disabled = true;
+  try { await db.doc("projet/etat").set({ ...S.etat, phase, statut: "soumis", action: act, soumis_le: new Date().toISOString(), message: "" }); toast(act === "valider" ? "Validé. Dites « c'est prêt » à Claude." : "Commentaires envoyés. Dites « c'est prêt » à Claude."); }
+  catch (err) { toast("Envoi impossible : " + (err.message || err.code)); }
+  b.disabled = false;
+});
+
+function renderAll() { renderSteps(); renderBanners(); paintBrief(); renderMedias(); renderAgen(); renderScenes(); renderGeneres(); renderNarration(); renderRendu(); fillThreads(); }
+
+/* ---------- Démarrage ---------- */
+buildBrief();
+try { view = localStorage.getItem("mv-view"); } catch {}
+renderAll();
+(async () => {
+  db = window.claude ? await claude.use("db") : null;
+  if (!db) { $("#banners").innerHTML = `<div class="banner limite"><strong>Page en lecture seule</strong><span>La base du projet n'est pas accessible depuis cette vue. Ouvrez la page connecté à votre compte Claude.</span></div>`; return; }
+  assets = await claude.use("assets");
+  userApi = await claude.use("user");
+  try { me = userApi ? await userApi.id() : null; } catch {}
+  const docs = { "projet/etat": "etat", "projet/brief": "brief", "projet/narration": "narration", "projet/rendu": "rendu", "ref/quotas": "quotas" };
+  for (const [p, k] of Object.entries(docs)) db.doc(p).onSnapshot(s => {
+    if (k === "brief" && s.metadata.hasPendingWrites) return;
+    if (k === "narration" && s.metadata.hasPendingWrites) return;
+    S[k] = s.data() || {};
+    if (k === "etat" && !view) view = S.etat.phase || "brief";
+    renderAll();
+  });
+  db.doc("ref/voix").onSnapshot(s => { S.voix = (s.data() || {}).liste || []; renderVoices(); });
+  const cols = { medias: "medias", a_generer: "agen", scenes: "scenes", generes: "generes", commentaires: "comments" };
+  for (const [c, k] of Object.entries(cols)) db.collection(c).onSnapshot(q => { S[k] = q.docs.map(d => ({ ...d.data(), _id: d.id })); renderAll(); });
+})();
+})();
+</script>

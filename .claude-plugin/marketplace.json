@@ -1,0 +1,14 @@
+{
+  "name": "motion-video",
+  "description": "Outils de création vidéo de Jérôme Hérard pour Claude Code.",
+  "owner": {
+    "name": "Jérôme Hérard"
+  },
+  "plugins": [
+    {
+      "name": "motion-video",
+      "source": "./",
+      "description": "Studio de création de vidéos en motion design piloté par un Artifact."
+    }
+  ]
+}

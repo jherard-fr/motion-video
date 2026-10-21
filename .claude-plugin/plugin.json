@@ -1,0 +1,8 @@
+{
+  "name": "motion-video",
+  "version": "1.0.0",
+  "description": "Studio de création de vidéos en motion design piloté par un Artifact : brief, planches animées, médias générés (GPT Image, Kling), narration ElevenLabs, sous-titres, rendu MP4 et retouche dans HyperFrames Studio.",
+  "author": { "name": "Jérôme Hérard" },
+  "repository": "https://github.com/jherard-fr/motion-video",
+  "keywords": ["video", "motion-design", "hyperframes", "elevenlabs", "openrouter"]
+}
